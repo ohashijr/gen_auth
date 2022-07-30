@@ -4,9 +4,7 @@ $ mix phx.new auth
 
 ## Comentar no mix.exs
 
-''
-compilers: [:gettext] ++ Mix.compilers(),
-''
+`compilers: [:gettext] ++ Mix.compilers(),`
 
 ## Gerar o Users
 
