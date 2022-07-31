@@ -1,11 +1,21 @@
-# Criar o projeto
+# Criar o banco, rodar migration e seeds
 
-$ mix phx.new auth
+$ mix ecto.create
 
-## Comentar no mix.exs
+$ mix ecto.migrate
 
-`# compilers: [:gettext] ++ Mix.compilers(),`
+$ mix run priv/repo/seeds.exs
 
-## Gerar o Users
+Foram criadas duas contas:
 
-$ mix phx.gen.auth Accounts User users
+user: admin@gmail.com
+senha: 123456
+
+user: normal@gmail.com
+senha: 123456
+
+Acesso apenas ao admin
+/admin
+
+Acesso ao normal
+/normal
