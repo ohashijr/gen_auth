@@ -1,7 +1,7 @@
 defmodule Auth.Accounts.UserToken do
   use Ecto.Schema
   import Ecto.Query
-  alias Auth.Accounts.UserToken
+  alias Auth.Accounts.{UserToken, Role, User}
 
   @hash_algorithm :sha256
   @rand_size 32
@@ -54,13 +54,29 @@ defmodule Auth.Accounts.UserToken do
   The token is valid if it matches the value in the database and it has
   not expired (after @session_validity_in_days).
   """
+  # def verify_session_token_query(token) do
+  #   query =
+  #     from token in token_and_context_query(token, "session"),
+  #       join: user in assoc(token, :user),
+  #       left_join: roles in assoc(user, :roles),
+  #       where: token.inserted_at > ago(@session_validity_in_days, "day"),
+  #       select: user
+
+  #   {:ok, query}
+  # end
+
+  # Faz o preload o user com roles
   def verify_session_token_query(token) do
     query =
-      from token in token_and_context_query(token, "session"),
-        join: user in assoc(token, :user),
-        where: token.inserted_at > ago(@session_validity_in_days, "day"),
-        select: user
-
+      from(user in User,
+        join: ut in assoc(user, :tokens),
+        left_join: roles in assoc(user, :roles),
+        where: ut.token == ^token
+        and ut.context == "session"
+        and ut.inserted_at > ago(60, "day")
+        and roles.deleted == -1,
+        preload: [:roles]
+      )
     {:ok, query}
   end
 

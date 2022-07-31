@@ -6,7 +6,7 @@ defmodule Auth.Accounts do
   import Ecto.Query, warn: false
   alias Auth.Repo
 
-  alias Auth.Accounts.{User, UserToken, UserNotifier}
+  alias Auth.Accounts.{User, UserToken, UserNotifier, Role}
 
   ## Database getters
 
@@ -78,6 +78,20 @@ defmodule Auth.Accounts do
     %User{}
     |> User.registration_changeset(attrs)
     |> Repo.insert()
+  end
+
+  # user_params: %{email: "admin@gmail.com", password: "123456"}
+  # roles: :admin
+  # create_user_roles(%{email: "admin@gmail.com", password: "123456"}, :admin)
+  def create_user_roles(user_params, role) when is_atom(role) do
+    case register_user(user_params) do
+      {:ok, user} ->
+        Role.changeset(%Role{}, %{role: role, user_id: user.id})
+          |> Repo.insert()
+        {:ok, user}
+      {:error, er} ->
+        {:error, er}
+    end
   end
 
   @doc """

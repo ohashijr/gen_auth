@@ -2,6 +2,7 @@ defmodule AuthWeb.Router do
   use AuthWeb, :router
 
   import AuthWeb.UserAuth
+  alias AuthWeb.RolePlug
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -10,11 +11,31 @@ defmodule AuthWeb.Router do
     plug :put_root_layout, {AuthWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug :fetch_current_user
+    plug :fetch_current_user # pega o user e joga na sessao
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :administrador do
+    plug RolePlug, :admin
+  end
+
+  pipeline :normal do
+    plug RolePlug, :normal
+  end
+
+  scope "/", AuthWeb do
+    pipe_through [:browser, :require_authenticated_user, :administrador]
+
+    live "/admin", AdminLive
+  end
+
+  scope "/", AuthWeb do
+    pipe_through [:browser, :require_authenticated_user, :normal]
+
+    live "/normal", NormalLive
   end
 
   scope "/", AuthWeb do
@@ -89,4 +110,5 @@ defmodule AuthWeb.Router do
     get "/users/confirm/:token", UserConfirmationController, :edit
     post "/users/confirm/:token", UserConfirmationController, :update
   end
+
 end

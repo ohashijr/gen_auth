@@ -48,6 +48,8 @@ defmodule AuthWeb do
         layout: {AuthWeb.LayoutView, "live.html"}
 
       unquote(view_helpers())
+
+      import AuthWeb.LiveHelpers
     end
   end
 
